@@ -10,7 +10,7 @@ Running the script without any arguments is equivalent to:
 
     $ ./download.sh --os-type=wine64 --from-id=1 --to-id=550
 
-Confirmed valid `--os-type` values are `win32`, `win64`, `wine32`, and `wine64`. Others may also exist.
+Confirmed valid `--os-type` values are `win32`, `win64`, `wow64`, `wine32`, and `wine64`. Others may also exist.
 
 ### Fun things to try
 
