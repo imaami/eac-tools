@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. "$(dirname "$0")/args.sh"
+. "$(dirname "$0")/libexec/args.sh"
 
 # Command-line argument list
 options=(
