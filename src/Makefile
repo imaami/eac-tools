@@ -2,12 +2,13 @@ override DIR := $(dir $(realpath $(lastword $(MAKEFILE_LIST))))
 override SRC := $(wildcard $(DIR)*.c)
 override OBJ := $(SRC:.c=.o)
 
+override HEAD_CFLAGS := -std=gnu11 -Wall -Wextra
+override TAIL_CFLAGS := $(if $(strip $(CFLAGS)),$(CFLAGS),-O3 -ggdb)
+
+override CFLAGS := $(HEAD_CFLAGS) $(TAIL_CFLAGS)
 override TARGET := dexor
 
 CC := gcc
-CFLAGS := -march=native -mtune=native
-
-override CFLAGS += -std=gnu11 -Wall -Wextra
 
 .PHONY: all clean $(TARGET)
 
