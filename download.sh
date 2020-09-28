@@ -12,8 +12,11 @@ options=(
   'uuid'
 )
 
+# Program name
+argv0="$(basename "$0")"
+
 # Parse command-line arguments
-parse_args "$(basename "$0")" "$@"
+parse_args "$argv0" "$@"
 
 # Copy arguments to less fugly variables
 os_type="${opts_value['os-type']}"
@@ -24,14 +27,19 @@ to_id="${opts_value['to-id']}"
 uuid="${opts_value['uuid']}"
 
 # Check arguments' sanity somewhat
-[[ -z "$id" ]] || {
+if [[ "$id" ]]; then
   [[ -z "$from_id$to_id" ]] || {
     echo "Mixing '--id' with '--from-id' and/or '--to-id' is forbidden" >&2
-    exit 1
+    usage "$argv0" 1
   }
   from_id="$id"
   to_id="$id"
-}
+else
+  [[ "$from_id" && "$to_id" ]] || {
+    echo "Not enough arguments: need a game ID or range of IDs" >&2
+    usage "$argv0" 1
+  }
+fi
 
 # Fill in default arguments where applicable
 [[ "$os_type" ]] || {
@@ -40,17 +48,6 @@ uuid="${opts_value['uuid']}"
 }
 
 #[[ "$id_list" ]] || id_list="$(dirname "$0")/game_ids.list"
-
-[[ "$id" ]] || {
-  [[ "$from_id" ]] || {
-    from_id=1
-    echo "No '--from-id' argument, defaulting to $from_id" >&2
-  }
-  [[ "$to_id" ]] || {
-    to_id=550
-    echo "No '--to-id' argument, defaulting to $to_id" >&2
-  }
-}
 
 # Shim for missing uuidgen
 command -v uuidgen >/dev/null || uuidgen() {

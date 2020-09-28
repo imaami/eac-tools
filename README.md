@@ -2,13 +2,17 @@
 
 *"Making Easy Anti-Cheat work in Wine one ragequit at a time."*
 
-Just a little something to expedite figuring out what the hell EAC does when it doesn't do the thing it ~~fucking~~ should.
+A little something to help figure out the games and platforms EAC serves binary blobs for on their CDN.
 
 ## Usage
 
-Running the script without any arguments is equivalent to:
+Download the 64-bit Wine binary blob for game ID 55 (implicit `--os-type=wine64`):
 
-    $ ./download.sh --os-type=wine64 --from-id=1 --to-id=550
+    $ ./download.sh --id=55
+
+Download win64 binary blobs for game IDs beginning from 1 up to and including 550:
+
+    $ ./download.sh --os-type=win64 --from-id=1 --to-id=550
 
 Confirmed valid `--os-type` values are `win32`, `win64`, `wow64`, `wine32`, and `wine64`. Others may also exist.
 
