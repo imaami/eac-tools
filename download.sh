@@ -6,6 +6,7 @@
 options=(
   'os-type'
 #  'id-list'
+  'id'
   'from-id'
   'to-id'
   'uuid'
@@ -17,20 +18,44 @@ parse_args "$(basename "$0")" "$@"
 # Copy arguments to less fugly variables
 os_type="${opts_value['os-type']}"
 #id_list="${opts_value['id-list']}"
+id="${opts_value['id']}"
 from_id="${opts_value['from-id']}"
 to_id="${opts_value['to-id']}"
 uuid="${opts_value['uuid']}"
+
+# Check arguments' sanity somewhat
+[[ -z "$id" ]] || {
+  [[ -z "$from_id$to_id" ]] || {
+    echo "Mixing '--id' with '--from-id' and/or '--to-id' is forbidden" >&2
+    exit 1
+  }
+  from_id="$id"
+  to_id="$id"
+}
+
+# Fill in default arguments where applicable
+[[ "$os_type" ]] || {
+  os_type=wine64
+  echo "No '--os-type' argument, defaulting to $os_type" >&2
+}
+
+#[[ "$id_list" ]] || id_list="$(dirname "$0")/game_ids.list"
+
+[[ "$id" ]] || {
+  [[ "$from_id" ]] || {
+    from_id=1
+    echo "No '--from-id' argument, defaulting to $from_id" >&2
+  }
+  [[ "$to_id" ]] || {
+    to_id=550
+    echo "No '--to-id' argument, defaulting to $to_id" >&2
+  }
+}
 
 # Shim for missing uuidgen
 command -v uuidgen >/dev/null || uuidgen() {
   hexdump -vn 16 -e '4/1 "%02x" "-" 2/1 "%02x" "-" 2/1 "%02x" "-" 2/1 "%02x" "-" 6/1 "%02x" "\n"' /dev/urandom 2>/dev/null
 }
-
-# Fill unset arguments with defaults when applicable
-[[ "$os_type" ]] || os_type=wine64
-#[[ "$id_list" ]] || id_list="$(dirname "$0")/game_ids.list"
-[[ "$from_id" ]] || from_id=1
-[[ "$to_id"   ]] || to_id=550
 
 urlhead='https://download.eac-cdn.com/api/v1/games'
 urltail="client/$os_type/download/?uuid="
@@ -38,7 +63,12 @@ urltail="client/$os_type/download/?uuid="
 # printf format specifier for zero-padding game id
 id_fmt0="%0${#to_id}d"
 
-logfile=$(printf "eac-games-$id_fmt0-to-$id_fmt0-$os_type.log" "$from_id" "$to_id")
+if [[ "$id" ]]; then
+  logfile=$(printf "eac-game-$id_fmt0-$os_type.log" "$id")
+else
+  logfile=$(printf "eac-games-$id_fmt0-to-$id_fmt0-$os_type.log" "$from_id" "$to_id")
+fi
+
 tmpfile="/dev/shm/eac-$os_type.bin"
 
 rm -f "$tmpfile"
